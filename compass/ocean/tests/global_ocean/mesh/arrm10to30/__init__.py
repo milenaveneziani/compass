@@ -52,7 +52,8 @@ class ARRM10to30BaseMesh(QuasiUniformSphericalMeshStep):
         dlon = 0.1
         dlat = dlon
         earth_radius = constants['SHR_CONST_REARTH']
-        print('\nCreating cellWidth on a lat-lon grid')
+        print(f'\nCreating cellWidth on a lat-lon grid of: {dlon:.2f} x '
+              f'{dlat:.2f} degrees')
         print('This can be set higher for faster test generation\n')
         nlon = int(360. / dlon) + 1
         nlat = int(180. / dlat) + 1
@@ -163,17 +164,16 @@ def _plot_cartopy(plot_number, var_name, var, map_name):
                    extent=[-180, 180, -90, 90], cmap=map_name,
                    zorder=0)
     ax.add_feature(cfeature.LAND, edgecolor='black', zorder=1)
-    gl = ax.gridlines(
+    # all labels were hidden below, so don't create them in the first place:
+    # hidden labels confuse cartopy's title placement, leading to a non-finite
+    # axes bounding box
+    ax.gridlines(
         crs=ccrs.PlateCarree(),
-        draw_labels=True,
+        draw_labels=False,
         linewidth=1,
         color='gray',
         alpha=0.5,
         linestyle='-', zorder=2)
     ax.coastlines()
-    gl.top_labels = False
-    gl.bottom_labels = False
-    gl.right_labels = False
-    gl.left_labels = False
     plt.colorbar(im, shrink=.9)
     plt.title(var_name)
