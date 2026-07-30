@@ -14,9 +14,9 @@ from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from compass.mesh import QuasiUniformSphericalMeshStep
 
 
-class ARRM6to30BaseMesh(QuasiUniformSphericalMeshStep):
+class ARRM10to30BaseMesh(QuasiUniformSphericalMeshStep):
     """
-    A step for creating the ARRM6to30 base mesh
+    A step for creating the ARRM10to30 base mesh
     """
     def setup(self):
         """
