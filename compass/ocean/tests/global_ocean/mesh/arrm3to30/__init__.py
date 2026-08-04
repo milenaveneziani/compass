@@ -16,9 +16,9 @@ from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from compass.mesh import QuasiUniformSphericalMeshStep
 
 
-class ARRM9to30BaseMesh(QuasiUniformSphericalMeshStep):
+class ARRM3to30BaseMesh(QuasiUniformSphericalMeshStep):
     """
-    A step for creating the ARRM9to30 base mesh
+    A step for creating the ARRM3to30 base mesh
     """
     def setup(self):
         """
@@ -73,11 +73,11 @@ class ARRM9to30BaseMesh(QuasiUniformSphericalMeshStep):
 
         # Create cell width vs latitude for Atlantic and Pacific basins
         qu1 = np.ones(lat.size)
-        rrs9to30 = mdt.RRS_CellWidthVsLat(lat, 30, 9)
-        atl_nh = rrs9to30
+        rrs3to30 = mdt.RRS_CellWidthVsLat(lat, 30, 3)
+        atl_nh = rrs3to30
         atl_vs_lat = mdt.mergeCellWidthVsLat(lat, 30 * qu1, atl_nh, 0, 5)
-        #pac_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs9to30, 30, 5)
-        pac_nh = rrs9to30
+        pac_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs3to30, 30, 5)
+        #pac_nh = rrs3to30
         pac_vs_lat = mdt.mergeCellWidthVsLat(lat, 30 * qu1, pac_nh, 0, 5)
         ind_vs_lat = 30 * qu1
 
