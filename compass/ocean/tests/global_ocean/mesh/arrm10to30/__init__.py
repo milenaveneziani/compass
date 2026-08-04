@@ -1,6 +1,8 @@
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.colors as cols
 import mpas_tools.mesh.creation.mesh_definition_tools as mdt
 import numpy as np
 from geometric_features import read_feature_collection
@@ -74,7 +76,8 @@ class ARRM10to30BaseMesh(QuasiUniformSphericalMeshStep):
         rrs10to30 = mdt.RRS_CellWidthVsLat(lat, 30, 10)
         atl_nh = rrs10to30
         atl_vs_lat = mdt.mergeCellWidthVsLat(lat, 30 * qu1, atl_nh, 0, 5)
-        pac_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs10to30, 25, 5)
+        #pac_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs10to30, 25, 5)
+        pac_nh = rrs10to30
         pac_vs_lat = mdt.mergeCellWidthVsLat(lat, 30 * qu1, pac_nh, 0, 5)
         ind_vs_lat = 30 * qu1
 
@@ -128,13 +131,13 @@ class ARRM10to30BaseMesh(QuasiUniformSphericalMeshStep):
         cell_width = \
             ind_grid * redsea_mask + cell_width * (1 - redsea_mask)
 
+        # Plotting
         ax = plt.subplot(4, 2, 1)
         ax.plot(lat, atl_vs_lat, label='Atlantic')
         ax.plot(lat, pac_vs_lat, label='Pacific')
         ax.grid(True)
         plt.title('Grid cell size [km] versus latitude')
         plt.legend()
-
         var_names = [
             'signed_distance',
             'mask_smooth',
@@ -149,8 +152,15 @@ class ARRM10to30BaseMesh(QuasiUniformSphericalMeshStep):
             j += 1
         fig.canvas.draw()
         plt.tight_layout()
-
         plt.savefig('mesh_construction.png')
+
+        fig = plt.figure(figsize=[12, 8], dpi=150)
+        colormap = plt.get_cmap('3Wbgy5')
+        cindices = [0, 14, 28, 57, 85, 113, 125, 142, 155, 170, 198, 227, 242, 255]
+        _plot_cellWidthGlobal(cell_width, colormap, cindices)
+        fig.canvas.draw()
+        plt.tight_layout()
+        plt.savefig('cellWidthGlobal_discretecbar.png', bbox_inches='tight')
 
         return cell_width, lon, lat
 
@@ -177,3 +187,35 @@ def _plot_cartopy(plot_number, var_name, var, map_name):
     ax.coastlines()
     plt.colorbar(im, shrink=.9)
     plt.title(var_name)
+
+def _plot_cellWidthGlobal(var, colormap, colorindices):
+    min_width = np.amin(var)
+    max_width = np.amax(var)
+
+    # make discrete colorbar
+    nlevels = len(colorindices)
+    clevels = np.linspace(min_width, max_width, num=nlevels)
+    colormap = cols.ListedColormap(colormap(colorindices))
+    colornorm = mpl.colors.BoundaryNorm(clevels, colormap.N)
+
+    # plot
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_global()
+    im = ax.imshow(var,
+                   origin='lower',
+                   transform=ccrs.PlateCarree(),
+                   extent=[-180, 180, -90, 90],
+                   cmap=colormap,
+                   norm=colornorm,
+                   zorder=0)
+    ax.add_feature(cfeature.LAND, edgecolor='black', zorder=1)
+    ax.gridlines(
+        crs=ccrs.PlateCarree(),
+        draw_labels=['left', 'bottom'],
+        linewidth=1,
+        color='gray',
+        alpha=0.5,
+        linestyle='-', zorder=2)
+    ax.coastlines()
+    plt.colorbar(im, ticks=clevels, boundaries=clevels, location='right', pad=0.03, shrink=.5, format="%.1f")
+    plt.title(f'Grid cell size, km, min={min_width:.1f}, max={max_width:.1f}')
