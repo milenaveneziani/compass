@@ -228,8 +228,8 @@ class RemapTopography(Step):
         # Partition source SCRIP
         args = [
             'mbpart', f'{self.ntasks}',
-            '-m', 'ML_KWAY',
-        #    '-z', 'RCB',
+        #    '-m', 'ML_KWAY',
+            '-z', 'RCB',
             h5m_filename,
             part_filename,
         ]
