@@ -72,12 +72,15 @@ class ARRM3to30BaseMesh(QuasiUniformSphericalMeshStep):
         register_sci_viz_colormaps()
 
         # Create cell width vs latitude for Atlantic and Pacific basins
+        # (note: last two arguments of mergeCellWidthVsLat are transition
+        #  latitude and width around it)
         qu1 = np.ones(lat.size)
         rrs3to30 = mdt.RRS_CellWidthVsLat(lat, 30, 3)
-        atl_nh = rrs3to30
+        #atl_nh = rrs3to30
+        #atl_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs3to30, 30, 10) # ok north of 45N but transition to 30km could be smoother
+        atl_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs3to30, 30, 15)
         atl_vs_lat = mdt.mergeCellWidthVsLat(lat, 30 * qu1, atl_nh, 0, 5)
-        pac_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs3to30, 30, 5)
-        #pac_nh = rrs3to30
+        pac_nh = mdt.mergeCellWidthVsLat(lat, 30 * qu1, rrs3to30, 30, 15)
         pac_vs_lat = mdt.mergeCellWidthVsLat(lat, 30 * qu1, pac_nh, 0, 5)
         ind_vs_lat = 30 * qu1
 
